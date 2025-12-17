@@ -33,8 +33,9 @@ This repository currently focuses on the **frontend foundation** of the system.
 
 ---
 
-## Project Structure
+### Project Structure
 
+```text
 workwise-frontend/
 ├── index.html          # Landing page (role selection)
 ├── student.html        # Student dashboard
@@ -44,6 +45,7 @@ workwise-frontend/
 │   └── style.css       # Shared styles
 └── js/
     └── main.js         # Frontend logic for all roles
+```
 
 ---
 
