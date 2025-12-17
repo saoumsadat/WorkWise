@@ -36,17 +36,14 @@ This repository currently focuses on the **frontend foundation** of the system.
 ## Project Structure
 
 workwise-frontend/
-│
-├── index.html # Landing page (role selection)
-├── student.html # Student dashboard
-├── client.html # Client dashboard
-├── admin.html # University admin dashboard
-│
+├── index.html          # Landing page (role selection)
+├── student.html        # Student dashboard
+├── client.html         # Client dashboard
+├── admin.html          # University admin dashboard
 ├── css/
-│ └── style.css # Shared styles
-│
+│   └── style.css       # Shared styles
 └── js/
-└── main.js # Frontend logic for all roles
+    └── main.js         # Frontend logic for all roles
 
 ---
 
