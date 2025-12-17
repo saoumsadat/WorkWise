@@ -1,0 +1,92 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    text-align: center;
+    padding-top: 60px;
+}
+
+h1 {
+    font-size: 42px;
+}
+
+.role-container a {
+    display: inline-block;
+    margin: 15px;
+    padding: 15px 30px;
+    background-color: #2563eb;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 18px;
+}
+
+.role-container a:hover {
+    background-color: #1e40af;
+}
+
+.job-list {
+    list-style: none;
+    padding: 0;
+}
+
+.job-list li {
+    background: white;
+    margin: 15px auto;
+    padding: 15px;
+    width: 60%;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.job-list button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.job-list button:hover {
+    background-color: #15803d;
+}
+
+.status {
+    font-weight: bold;
+}
+
+button[disabled] {
+    background-color: gray;
+    cursor: not-allowed;
+}
+
+#student-info {
+    background: white;
+    width: 60%;
+    margin: 0 auto 20px auto;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+#client-info {
+    background: white;
+    width: 60%;
+    margin: 0 auto 20px auto;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+#admin-info {
+    background: white;
+    width: 60%;
+    margin: 0 auto 20px auto;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    text-align: left;
+}
