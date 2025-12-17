@@ -1,6 +1,6 @@
 # WorkWise
 
-WorkWise is a university–job matching platform designed around a **skill-based approach**.  
+WorkWise is a university–part time job matching platform designed around a **skill-based approach**.  
 The system connects **students, universities, and employers** while incorporating **social contribution points** to promote socially impactful employment.
 
 This repository currently focuses on the **frontend foundation** of the system.
