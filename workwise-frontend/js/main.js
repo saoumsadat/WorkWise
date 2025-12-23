@@ -1,3 +1,5 @@
+"use strict";
+
 console.log("WorkWise frontend loaded");
 
 /* =========================
@@ -29,6 +31,8 @@ const studentJobs = [
         applied: false
     }
 ];
+
+const studentApplications = [];
 
 function renderStudent() {
     const studentInfoDiv = document.getElementById("student-info");
@@ -64,10 +68,40 @@ function renderStudent() {
     }
 }
 
+function renderStudentApplications() {
+    
+    const list = document.getElementById("student-application-list");
+    if (!list) return;
+    
+    list.innerHTML = "";
+
+    if (studentApplications.length === 0) {
+        list.innerHTML = "<li>No applications yet.</li>";
+        return;
+    }
+
+    studentApplications.forEach(app => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <strong>${app.jobTitle}</strong><br>
+            Application Status: ${app.status}
+        `;
+        list.appendChild(li);
+    });
+}
+
+
 function applyJob(jobId) {
     const job = studentJobs.find(j => j.id === jobId);
-    if (!job) return;
+    if (!job || job.applied) return;
+
     job.applied = true;
+
+    studentApplications.push({
+        jobTitle: job.title,
+        status: "Applied"
+    });
+
     renderStudent();
 }
 
@@ -86,9 +120,24 @@ const clientJobs = [
     { id: 2, title: "Backend Developer", salary: 50000 }
 ];
 
+function postJob(title, salary) {
+    clientJobs.push({
+        id: Date.now(),
+        title: title,
+        salary: salary
+    });
+
+    renderClient();
+}
+
 function renderClient() {
     const clientInfoDiv = document.getElementById("client-info");
     const clientJobList = document.getElementById("client-job-list");
+    
+    if (clientJobs.length === 0) {
+        clientJobList.innerHTML = "<li>No jobs posted yet.</li>";
+        return;
+    }
 
     if (clientInfoDiv) {
         clientInfoDiv.innerHTML = `
@@ -102,17 +151,44 @@ function renderClient() {
 
     if (clientJobList) {
         clientJobList.innerHTML = "";
+
         clientJobs.forEach(job => {
             const li = document.createElement("li");
+
             li.innerHTML = `
-                <strong>${job.title}</strong><br>
-                Salary: ${job.salary}<br>
-                Status: Open
-            `;
+            <strong>${job.title}</strong><br>
+            Salary: ${job.salary}<br>
+            Status: Open<br><br>
+            <button onclick="viewApplications(${job.id})">
+                View Applications
+            </button>
+        `;
+
             clientJobList.appendChild(li);
         });
     }
 }
+
+function viewApplications(jobId) {
+    alert("View Applications will be implemented after backend integration.");
+}
+
+
+const postJobForm = document.getElementById("post-job-form");
+
+if (postJobForm) {
+    postJobForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const title = document.getElementById("job-title").value;
+        const salary = document.getElementById("job-salary").value;
+
+        postJob(title, salary);
+
+        postJobForm.reset();
+    });
+}
+
 
 /* =========================
    ADMIN DATA & LOGIC
@@ -153,15 +229,48 @@ function renderAdmin() {
 
     if (adminJobList) {
         adminJobList.innerHTML = "";
+
         adminJobs.forEach(job => {
             const li = document.createElement("li");
+
             li.innerHTML = `
                 <strong>${job.title}</strong><br>
-                Social Contribution Points: ${job.socialPoints}
+                Social Contribution Points:
+                <span id="points-${job.id}">${job.socialPoints}</span>
+                <button class="edit-btn" onclick="enableEdit(${job.id})">✏️</button>
+                <div id="edit-${job.id}" style="display:none;">
+                    <input type="number" id="input-${job.id}" value="${job.socialPoints}" min="0">
+                    <button onclick="saveEdit(${job.id})">Save</button>
+                </div>
             `;
+
             adminJobList.appendChild(li);
         });
     }
+}
+
+function enableEdit(jobId) {
+    document.getElementById(`edit-${jobId}`).style.display = "block";
+}
+
+function saveEdit(jobId) {
+    const input = document.getElementById(`input-${jobId}`);
+    const newValue = parseInt(input.value);
+
+    const job = adminJobs.find(j => j.id === jobId);
+    if (!job) return;
+
+    job.socialPoints = newValue;
+
+    document.getElementById(`points-${jobId}`).innerText = newValue;
+    document.getElementById(`edit-${jobId}`).style.display = "none";
+}
+
+function updateSocialPoints(jobId, newValue) {
+    const job = adminJobs.find(j => j.id === jobId);
+    if (!job) return;
+
+    job.socialPoints = parseInt(newValue);
 }
 
 /* =========================
@@ -170,3 +279,4 @@ function renderAdmin() {
 renderStudent();
 renderClient();
 renderAdmin();
+renderStudentApplications();
