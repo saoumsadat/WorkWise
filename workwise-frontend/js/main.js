@@ -32,7 +32,44 @@ const studentJobs = [
     }
 ];
 
-const studentApplications = [];
+const studentSkills = [
+    {
+        skillName: "Problem Solving",
+        paths: ["CSE220 → DSA", "CSE111 → OOP"]
+    },
+    {
+        skillName: "Database Design",
+        paths: ["CSE330 → Relational Databases"]
+    }
+];
+
+const currentMonth = "March 2025";
+
+const payments = [
+    {
+        studentName: "John Doe",
+        jobTitle: "Software Intern",
+        status: "Pending"
+    },
+    {
+        studentName: "Jane Smith",
+        jobTitle: "Data Analyst",
+        status: "Paid"
+    }
+];
+
+const studentApplications = [
+    {
+        jobTitle: "Software Intern",
+        company: "TechNova Ltd.",
+        status: "Accepted"
+    },
+    {
+        jobTitle: "Data Analyst",
+        company: "DataWorks Inc.",
+        status: "Pending"
+    }
+];
 
 function renderStudent() {
     const studentInfoDiv = document.getElementById("student-info");
@@ -68,11 +105,29 @@ function renderStudent() {
     }
 }
 
+function renderStudentSkills() {
+    const skillList = document.getElementById("student-skill-list");
+    if (!skillList) return;
+
+    skillList.innerHTML = "";
+
+    studentSkills.forEach(skill => {
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+            <strong>${skill.skillName}</strong>
+            (${skill.paths.join(", ")})
+        `;
+
+        skillList.appendChild(li);
+    });
+}
+
+
 function renderStudentApplications() {
-    
     const list = document.getElementById("student-application-list");
     if (!list) return;
-    
+
     list.innerHTML = "";
 
     if (studentApplications.length === 0) {
@@ -84,12 +139,42 @@ function renderStudentApplications() {
         const li = document.createElement("li");
         li.innerHTML = `
             <strong>${app.jobTitle}</strong><br>
-            Application Status: ${app.status}
+            Company: ${app.company}<br>
+            Status: ${app.status}
         `;
         list.appendChild(li);
     });
 }
 
+function renderCurrentMonthPayments() {
+    const monthDiv = document.getElementById("current-month");
+    const list = document.getElementById("student-payment-status");
+
+    if (!monthDiv || !list) return;
+
+    monthDiv.innerHTML = `<strong>${currentMonth}</strong>`;
+    list.innerHTML = "";
+
+    const studentName = student.name;
+
+    const myPayments = payments.filter(
+        p => p.studentName === studentName
+    );
+
+    if (myPayments.length === 0) {
+        list.innerHTML = "<li>No payment records for this month.</li>";
+        return;
+    }
+
+    myPayments.forEach(p => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <strong>${p.jobTitle}</strong><br>
+            Status: ${p.status}
+        `;
+        list.appendChild(li);
+    });
+}
 
 function applyJob(jobId) {
     const job = studentJobs.find(j => j.id === jobId);
@@ -120,6 +205,24 @@ const clientJobs = [
     { id: 2, title: "Backend Developer", salary: 50000 }
 ];
 
+const jobApplications = {
+    1: [
+        {
+            studentName: "John Doe",
+            studentId: "STU-2023-045",
+            skills: ["Python", "SQL"],
+            status: "Pending"
+        },
+        {
+            studentName: "Jane Smith",
+            studentId: "STU-2023-078",
+            skills: ["Python", "Data Analysis"],
+            status: "Pending"
+        }
+    ]
+};
+
+
 function postJob(title, salary) {
     clientJobs.push({
         id: Date.now(),
@@ -133,7 +236,7 @@ function postJob(title, salary) {
 function renderClient() {
     const clientInfoDiv = document.getElementById("client-info");
     const clientJobList = document.getElementById("client-job-list");
-    
+
     if (clientJobs.length === 0) {
         clientJobList.innerHTML = "<li>No jobs posted yet.</li>";
         return;
@@ -159,7 +262,7 @@ function renderClient() {
             <strong>${job.title}</strong><br>
             Salary: ${job.salary}<br>
             Status: Open<br><br>
-            <button onclick="viewApplications(${job.id})">
+            <button onclick="openApplications(${job.id})">
                 View Applications
             </button>
         `;
@@ -171,6 +274,83 @@ function renderClient() {
 
 function viewApplications(jobId) {
     alert("View Applications will be implemented after backend integration.");
+}
+
+function openApplications(jobId) {
+    localStorage.setItem("currentJobId", jobId);
+    window.location.href = "client-applications.html";
+}
+
+function updateApplicationStatus(jobId, index, newStatus) {
+    jobApplications[jobId][index].status = newStatus;
+    renderClientApplications();
+}
+
+function renderClientApplications() {
+    const list = document.getElementById("client-application-list");
+    if (!list) return;
+
+    const jobId = localStorage.getItem("currentJobId");
+    const applications = jobApplications[jobId] || [];
+
+    list.innerHTML = "";
+
+    if (applications.length === 0) {
+        list.innerHTML = "<li>No applications for this job.</li>";
+        return;
+    }
+
+    applications.forEach((app, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <strong>${app.studentName}</strong><br>
+            Student ID: ${app.studentId}<br>
+            Skills: ${app.skills.join(", ")}<br>
+            Status: <strong>${app.status}</strong><br><br>
+            <button onclick="updateApplicationStatus(${jobId}, ${index}, 'Accepted')">Accept</button>
+            <button onclick="updateApplicationStatus(${jobId}, ${index}, 'Rejected')">Reject</button>
+        `;
+        list.appendChild(li);
+    });
+}
+
+function renderClientPayments() {
+    const monthDiv = document.getElementById("client-payment-month");
+    const list = document.getElementById("client-payment-list");
+
+    if (!monthDiv || !list) return;
+
+    monthDiv.innerHTML = `<strong>${currentMonth}</strong>`;
+    list.innerHTML = "";
+
+    if (payments.length === 0) {
+        list.innerHTML = "<li>No employees to pay this month.</li>";
+        return;
+    }
+
+    payments.forEach((p, index) => {
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+            <strong>${p.studentName}</strong><br>
+            Job: ${p.jobTitle}<br>
+            Status: <strong>${p.status}</strong><br><br>
+            ${
+                p.status === "Pending"
+                    ? `<button onclick="payStudent(${index})">Pay</button>`
+                    : `<em>Payment completed</em>`
+            }
+        `;
+
+        list.appendChild(li);
+    });
+}
+
+function payStudent(index) {
+    payments[index].status = "Paid";
+
+    renderClientPayments();
+    renderCurrentMonthPayments();
 }
 
 
@@ -204,7 +384,7 @@ const adminJobs = [
     {
         id: 1,
         title: "Software Intern",
-        socialPoints: 8
+        socialPoints: null
     },
     {
         id: 2,
@@ -233,19 +413,35 @@ function renderAdmin() {
         adminJobs.forEach(job => {
             const li = document.createElement("li");
 
+            const pointsDisplay =
+                job.socialPoints === null
+                    ? "<em>Not Assigned</em>"
+                    : `<span id="points-${job.id}">${job.socialPoints}</span>`;
+
+            const editLabel =
+                job.socialPoints === null ? "Assign" : "Edit";
+
             li.innerHTML = `
                 <strong>${job.title}</strong><br>
                 Social Contribution Points:
-                <span id="points-${job.id}">${job.socialPoints}</span>
-                <button class="edit-btn" onclick="enableEdit(${job.id})">✏️</button>
+                ${pointsDisplay}
+                <button class="edit-btn" onclick="enableEdit(${job.id})">✏️ ${editLabel}</button>
+
                 <div id="edit-${job.id}" style="display:none;">
-                    <input type="number" id="input-${job.id}" value="${job.socialPoints}" min="0">
+                    <input
+                        type="number"
+                        id="input-${job.id}"
+                        value="${job.socialPoints ?? ""}"
+                        min="0"
+                        placeholder="Enter points"
+                    >
                     <button onclick="saveEdit(${job.id})">Save</button>
                 </div>
             `;
 
             adminJobList.appendChild(li);
         });
+
     }
 }
 
@@ -255,15 +451,16 @@ function enableEdit(jobId) {
 
 function saveEdit(jobId) {
     const input = document.getElementById(`input-${jobId}`);
-    const newValue = parseInt(input.value);
+    const newValue = input.value;
+
+    if (newValue === "") return;
 
     const job = adminJobs.find(j => j.id === jobId);
     if (!job) return;
 
-    job.socialPoints = newValue;
+    job.socialPoints = parseInt(newValue);
 
-    document.getElementById(`points-${jobId}`).innerText = newValue;
-    document.getElementById(`edit-${jobId}`).style.display = "none";
+    renderAdmin();
 }
 
 function updateSocialPoints(jobId, newValue) {
@@ -280,3 +477,7 @@ renderStudent();
 renderClient();
 renderAdmin();
 renderStudentApplications();
+renderStudentSkills();
+renderCurrentMonthPayments();
+renderClientApplications();
+renderClientPayments();
