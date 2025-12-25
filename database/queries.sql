@@ -152,16 +152,19 @@ VALUES (
 -- Candidate for VIEW
 
 SELECT
+    a.student_id,
     a.application_no,
-    j.job_title,
-    c.company_name,
+    a.apply_date,
     a.status,
-    a.apply_date
+    j.job_id,
+    j.job_title,
+    c.company_name
 FROM Application a
-JOIN Job j ON a.job_id = j.job_id
-JOIN Client c ON j.client_id = c.user_id
-WHERE a.student_id = 101
-ORDER BY a.apply_date DESC;
+JOIN Job j
+    ON a.job_id = j.job_id
+JOIN Client c
+    ON j.client_id = c.user_id
+WHERE a.student_id = 101;
 
 
 -- Q7: Student payment status for current month
