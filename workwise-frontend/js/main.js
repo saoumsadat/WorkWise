@@ -13,24 +13,7 @@ const student = {
     major: "Computer Science"
 };
 
-const studentJobs = [
-    {
-        id: 1,
-        title: "Software Intern",
-        salary: 20000,
-        skills: ["Python", "SQL"],
-        socialPoints: 8,
-        applied: false
-    },
-    {
-        id: 2,
-        title: "Data Analyst",
-        salary: 30000,
-        skills: ["Excel", "Statistics"],
-        socialPoints: 10,
-        applied: false
-    }
-];
+const studentJobs = [];
 
 const studentSkills = [
     {
@@ -71,6 +54,29 @@ const studentApplications = [
     }
 ];
 
+async function loadStudentJobs() {
+    try {
+        const res = await fetch("http://localhost:3000/api/jobs");
+        const jobs = await res.json();
+
+        studentJobs.length = 0;
+
+        jobs.forEach(j => {
+            studentJobs.push({
+                id: j.job_id,
+                title: j.job_title,
+                salary: j.salary,
+                socialPoints: j.social_contribution_points ?? "N/A",
+                applied: false
+            });
+        });
+
+        renderStudent();
+    } catch (err) {
+        console.error("Failed to load jobs", err);
+    }
+}
+
 function renderStudent() {
     const studentInfoDiv = document.getElementById("student-info");
     const jobList = document.getElementById("student-job-list");
@@ -94,7 +100,6 @@ function renderStudent() {
                 <strong>${job.title}</strong><br>
                 Salary: ${job.salary}<br>
                 Social Contribution Points: ${job.socialPoints}<br>
-                Skills: ${job.skills.join(", ")}<br>
                 Status: <span class="status">${job.applied ? "Applied" : "Not Applied"}</span><br>
                 <button ${job.applied ? "disabled" : ""} onclick="applyJob(${job.id})">
                     ${job.applied ? "Applied" : "Apply"}
@@ -473,7 +478,7 @@ function updateSocialPoints(jobId, newValue) {
 /* =========================
    INIT
 ========================= */
-renderStudent();
+loadStudentJobs();
 renderClient();
 renderAdmin();
 renderStudentApplications();
