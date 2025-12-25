@@ -156,11 +156,11 @@ INSERT INTO Requires (job_id, skill_id) VALUES
 -- APPLICATIONS
 -- =========================
 INSERT INTO Application (student_id, job_id, application_no, apply_date, status) VALUES
-(101, 1, 1, '2025-01-05', 'Applied'),
-(101, 3, 2, '2025-01-07', 'Shortlisted'),
-(102, 2, 1, '2025-01-06', 'Applied'),
-(103, 5, 1, '2025-01-08', 'Applied'),
-(104, 4, 1, '2025-01-09', 'Hired');
+(101, 1, 1, '2025-01-05', 'Pending'),
+(101, 3, 2, '2025-01-07', 'Accepted'),
+(102, 2, 1, '2025-01-06', 'Pending'),
+(103, 5, 1, '2025-01-08', 'Rejected'),
+(104, 4, 1, '2025-01-09', 'Rejected');
 
 -- =========================
 -- PAYMENTS
@@ -169,6 +169,7 @@ INSERT INTO Payment (payment_id, payment_date, payment_month, payment_year, amou
                      application_student_id, application_job_id, client_id) VALUES
 (1, '2025-02-01', 2, 2025, 12000, 'Paid', 101, 1, 201),
 (2, '2025-02-05', 2, 2025, 10000, 'Paid', 104, 4, 203);
+(3, '2025-02-05', 2, 2025, 10000, 'Unpaid', 104, 4, 201);
 
 -- =========================
 -- AUDIT LOG (SEED)
