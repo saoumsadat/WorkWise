@@ -169,7 +169,8 @@ INSERT INTO Payment (payment_id, payment_date, payment_month, payment_year, amou
                      application_student_id, application_job_id, client_id) VALUES
 (1, '2025-02-01', 2, 2025, 12000, 'Paid', 101, 1, 201),
 (2, '2025-02-05', 2, 2025, 10000, 'Paid', 104, 4, 203),
-(3, '2025-02-05', 2, 2025, 10000, 'Unpaid', 104, 4, 201);
+(3, '2025-02-05', 2, 2025, 10000, 'Unpaid', 104, 4, 201),
+(4, CURRENT_DATE, MONTH(CURRENT_DATE), YEAR(CURRENT_DATE), 12000, 'Unpaid', 101, 1, 201);
 
 -- =========================
 -- AUDIT LOG (SEED)

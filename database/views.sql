@@ -1,3 +1,18 @@
+CREATE VIEW v_available_jobs_for_students AS
+SELECT
+    j.job_id,
+    j.job_title,
+    j.salary,
+    j.social_contribution_points
+FROM Job j
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM Application a
+    WHERE a.job_id = j.job_id
+      AND a.status <> 'Rejected'
+);
+
+
 -- ---------------------------------------------------------
 -- View Code: V-S1
 -- View Name: v_student_applications
@@ -57,6 +72,19 @@ JOIN Produces p
     ON gc.generic_id = p.generic_id
 JOIN Skill sk
     ON p.skill_id = sk.skill_id;
+
+
+CREATE VIEW v_student_payment_status AS
+SELECT
+    p.application_student_id AS student_id,
+    p.payment_month,
+    p.payment_year,
+    p.status,
+    p.amount,
+    j.job_title
+FROM Payment p
+JOIN Job j
+    ON p.application_job_id = j.job_id;
 
 
 

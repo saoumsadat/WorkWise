@@ -5,79 +5,99 @@ console.log("WorkWise frontend loaded");
 /* =========================
    STUDENT DATA & LOGIC
 ========================= */
-const student = {
-    userId: 101,
-    studentId: "STU-2023-045",
-    name: "John Doe",
-    email: "john.doe@email.com",
-    major: "Computer Science"
-};
+let student = null;
+const CURRENT_STUDENT_ID = 103;
 
 const studentJobs = [];
 
-const studentSkills = [
-    {
-        skillName: "Problem Solving",
-        paths: ["CSE220 → DSA", "CSE111 → OOP"]
-    },
-    {
-        skillName: "Database Design",
-        paths: ["CSE330 → Relational Databases"]
-    }
-];
-
 const currentMonth = "March 2025";
 
-const payments = [
-    {
-        studentName: "John Doe",
-        jobTitle: "Software Intern",
-        status: "Pending"
-    },
-    {
-        studentName: "Jane Smith",
-        jobTitle: "Data Analyst",
-        status: "Paid"
-    }
-];
+const appliedJobIds = new Set();
 
-const studentApplications = [
-    {
-        jobTitle: "Software Intern",
-        company: "TechNova Ltd.",
-        status: "Accepted"
-    },
-    {
-        jobTitle: "Data Analyst",
-        company: "DataWorks Inc.",
-        status: "Pending"
-    }
-];
+async function loadStudentJobs(studentId) {
+    const res = await fetch(
+        `http://localhost:3000/api/students/${studentId}/available-jobs`
+    );
+    const jobs = await res.json();
 
-async function loadStudentJobs() {
-    try {
-        const res = await fetch("http://localhost:3000/api/jobs");
-        const jobs = await res.json();
+    studentJobs.length = 0;
 
-        studentJobs.length = 0;
-
-        jobs.forEach(j => {
-            studentJobs.push({
-                id: j.job_id,
-                title: j.job_title,
-                salary: j.salary,
-                socialPoints: j.social_contribution_points ?? "N/A",
-                applied: false
-            });
+    jobs.forEach(j => {
+        studentJobs.push({
+            id: j.job_id,
+            title: j.job_title,
+            salary: j.salary,
+            socialPoints: j.social_contribution_points ?? "N/A"
         });
+    });
 
+    renderStudent();
+}
+
+async function loadStudentProfile() {
+    try {
+        const res = await fetch(
+            `http://localhost:3000/api/students/${CURRENT_STUDENT_ID}`
+        );
+        const data = await res.json();
+
+        student = {
+            userId: data.user_id,
+            studentId: data.student_id,
+            name: data.name,
+            email: data.email,
+            major: data.major
+        };
+
+        loadStudentApplications();
+        loadStudentSkills();
+        loadCurrentMonthPayments();
+        loadStudentJobs(student.userId);
         renderStudent();
     } catch (err) {
-        console.error("Failed to load jobs", err);
+        console.error("Failed to load student profile", err);
+    }
+}
+
+async function loadStudentApplications() {
+    const res = await fetch(
+        `http://localhost:3000/api/students/${student.userId}/applications`
+    );
+    const apps = await res.json();
+
+    renderStudentApplications(apps);
+}
+
+async function loadStudentSkills() {
+    try {
+        const res = await fetch(
+            `http://localhost:3000/api/students/${student.userId}/skills`
+        );
+        const rows = await res.json();
+
+        renderStudentSkills(rows);
+    } catch (err) {
+        console.error("Failed to load student skills", err);
+    }
+}
+
+async function loadCurrentMonthPayments() {
+    if (!student) return;
+
+    try {
+        const res = await fetch(
+            `http://localhost:3000/api/students/${student.userId}/payments/current`
+        );
+        const payments = await res.json();
+
+        renderCurrentMonthPayments(payments);
+    } catch (err) {
+        console.error("Failed to load payment status", err);
     }
 }
 
 function renderStudent() {
+    if (!student) return;
     const studentInfoDiv = document.getElementById("student-info");
     const jobList = document.getElementById("student-job-list");
 
@@ -110,90 +130,130 @@ function renderStudent() {
     }
 }
 
-function renderStudentSkills() {
+function renderStudentSkills(rows) {
     const skillList = document.getElementById("student-skill-list");
     if (!skillList) return;
 
     skillList.innerHTML = "";
 
-    studentSkills.forEach(skill => {
+    if (!rows || rows.length === 0) {
+        skillList.innerHTML = "<li>No skills found.</li>";
+        return;
+    }
+
+    // Group courses by skill
+    const skillMap = {};
+
+    rows.forEach(r => {
+        if (!skillMap[r.skill_id]) {
+            skillMap[r.skill_id] = {
+                name: r.skill_name,
+                description: r.skill_description,
+                paths: []
+            };
+        }
+
+        skillMap[r.skill_id].paths.push(
+            `${r.course_code} → ${r.course_title} (${r.generic_course})`
+        );
+    });
+
+    Object.values(skillMap).forEach(skill => {
         const li = document.createElement("li");
-
         li.innerHTML = `
-            <strong>${skill.skillName}</strong>
-            (${skill.paths.join(", ")})
+            <strong>${skill.name}</strong><br>
+            <em>${skill.description}</em><br>
+            ${skill.paths.join("<br>")}
         `;
-
         skillList.appendChild(li);
     });
 }
 
 
-function renderStudentApplications() {
+function renderStudentApplications(apps) {
     const list = document.getElementById("student-application-list");
     if (!list) return;
 
     list.innerHTML = "";
 
-    if (studentApplications.length === 0) {
+    if (!apps || apps.length === 0) {
         list.innerHTML = "<li>No applications yet.</li>";
         return;
     }
 
-    studentApplications.forEach(app => {
+    apps.forEach(app => {
         const li = document.createElement("li");
         li.innerHTML = `
-            <strong>${app.jobTitle}</strong><br>
-            Company: ${app.company}<br>
-            Status: ${app.status}
+            <strong>${app.job_title}</strong><br>
+            Company: ${app.company_name}<br>
+            Status: ${app.status}<br>
+            Applied on: ${app.apply_date}<br>
+            Application No: ${app.application_no}
         `;
         list.appendChild(li);
     });
 }
 
-function renderCurrentMonthPayments() {
+function renderCurrentMonthPayments(payments) {
     const monthDiv = document.getElementById("current-month");
     const list = document.getElementById("student-payment-status");
 
     if (!monthDiv || !list) return;
 
-    monthDiv.innerHTML = `<strong>${currentMonth}</strong>`;
+    const now = new Date();
+    const monthName = now.toLocaleString("default", { month: "long" });
+    const year = now.getFullYear();
+
+    monthDiv.innerHTML = `<strong>${monthName} ${year}</strong>`;
     list.innerHTML = "";
 
-    const studentName = student.name;
-
-    const myPayments = payments.filter(
-        p => p.studentName === studentName
-    );
-
-    if (myPayments.length === 0) {
+    if (!payments || payments.length === 0) {
         list.innerHTML = "<li>No payment records for this month.</li>";
         return;
     }
 
-    myPayments.forEach(p => {
+    payments.forEach(p => {
         const li = document.createElement("li");
         li.innerHTML = `
-            <strong>${p.jobTitle}</strong><br>
-            Status: ${p.status}
+            <strong>${p.job_title}</strong><br>
+            Amount: ${p.amount}<br>
+            Status: <strong>${p.status}</strong>
         `;
         list.appendChild(li);
     });
 }
 
-function applyJob(jobId) {
-    const job = studentJobs.find(j => j.id === jobId);
-    if (!job || job.applied) return;
+async function applyJob(jobId) {
+    if (!student) return;
 
-    job.applied = true;
+    try {
+        const res = await fetch(
+            `http://localhost:3000/api/students/${student.userId}/apply`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ jobId })
+            }
+        );
 
-    studentApplications.push({
-        jobTitle: job.title,
-        status: "Applied"
-    });
+        const data = await res.json();
 
-    renderStudent();
+        if (!res.ok) {
+            alert(data.error || "Application failed");
+            return;
+        }
+
+        alert("Application submitted successfully");
+
+        // Refresh DB-backed sections
+        loadStudentApplications();
+        loadStudentJobs(student.userId);
+    } catch (err) {
+        console.error("Apply failed", err);
+        alert("Something went wrong");
+    }
 }
+
 
 /* =========================
    CLIENT DATA & LOGIC
@@ -340,10 +400,9 @@ function renderClientPayments() {
             <strong>${p.studentName}</strong><br>
             Job: ${p.jobTitle}<br>
             Status: <strong>${p.status}</strong><br><br>
-            ${
-                p.status === "Pending"
-                    ? `<button onclick="payStudent(${index})">Pay</button>`
-                    : `<em>Payment completed</em>`
+            ${p.status === "Pending"
+                ? `<button onclick="payStudent(${index})">Pay</button>`
+                : `<em>Payment completed</em>`
             }
         `;
 
@@ -478,11 +537,8 @@ function updateSocialPoints(jobId, newValue) {
 /* =========================
    INIT
 ========================= */
-loadStudentJobs();
+loadStudentProfile();
 renderClient();
 renderAdmin();
-renderStudentApplications();
-renderStudentSkills();
-renderCurrentMonthPayments();
 renderClientApplications();
 renderClientPayments();

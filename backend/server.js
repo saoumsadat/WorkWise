@@ -12,7 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// app.use("/api/students", studentRoutes);
+app.use("/api/students", studentRoutes);
 // app.use("/api/clients", clientRoutes);
 // app.use("/api/admins", adminRoutes);
 app.use("/api/jobs", jobRoutes);
