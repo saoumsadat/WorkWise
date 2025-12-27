@@ -168,7 +168,7 @@ INSERT INTO Application (student_id, job_id, application_no, apply_date, status)
 INSERT INTO Payment (payment_id, payment_date, payment_month, payment_year, amount, status,
                      application_student_id, application_job_id, client_id) VALUES
 (1, '2025-02-01', 2, 2025, 12000, 'Paid', 101, 1, 201),
-(2, '2025-02-05', 2, 2025, 10000, 'Paid', 104, 4, 203);
+(2, '2025-02-05', 2, 2025, 10000, 'Paid', 104, 4, 203),
 (3, '2025-02-05', 2, 2025, 10000, 'Unpaid', 104, 4, 201);
 
 -- =========================

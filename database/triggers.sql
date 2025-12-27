@@ -133,6 +133,8 @@ END$$
 DELIMITER ;
 
 
+DELIMITER $$
+
 CREATE TRIGGER trg_payment_update_audit
 AFTER UPDATE ON Payment
 FOR EACH ROW
