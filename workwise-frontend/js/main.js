@@ -6,7 +6,7 @@ console.log("WorkWise frontend loaded");
    STUDENT DATA & LOGIC
 ========================= */
 let student = null;
-const CURRENT_STUDENT_ID = 104;
+const CURRENT_STUDENT_ID = 102;
 
 const studentJobs = [];
 
@@ -252,7 +252,11 @@ async function applyJob(jobId) {
         const data = await res.json();
 
         if (!res.ok) {
-            alert(data.error || "Application failed");
+            if (data?.error?.includes("eligible")) {
+                alert("You are not eligible for this job");
+            } else {
+                alert("Application failed");
+            }
             return;
         }
 

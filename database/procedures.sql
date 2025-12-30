@@ -17,7 +17,24 @@ CREATE PROCEDURE ApplyOrReapplyJob (
     IN p_job_id INT
 )
 BEGIN
-    -- Case 1: No existing application → insert
+    /* -----------------------------------------
+       Eligibility Check (at least one skill)
+    ----------------------------------------- */
+    IF NOT EXISTS (
+        SELECT 1
+        FROM Requires r
+        JOIN v_student_skill_profile s
+            ON r.skill_id = s.skill_id
+        WHERE r.job_id = p_job_id
+          AND s.student_id = p_student_id
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Student is not eligible for this job';
+    END IF;
+
+    /* -----------------------------------------
+       Case 1: No existing application → insert
+    ----------------------------------------- */
     IF NOT EXISTS (
         SELECT 1
         FROM Application
@@ -40,7 +57,9 @@ BEGIN
             'Pending'
         );
 
-    -- Case 2: Previously rejected → reapply
+    /* -----------------------------------------
+       Case 2: Previously rejected → reapply
+    ----------------------------------------- */
     ELSEIF EXISTS (
         SELECT 1
         FROM Application
