@@ -46,6 +46,7 @@ router.get("/:userId/applications", async (req, res) => {
                 application_no,
                 apply_date,
                 status,
+                job_id,
                 job_title,
                 company_name
             FROM v_student_applications

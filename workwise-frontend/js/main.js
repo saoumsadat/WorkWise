@@ -6,7 +6,7 @@ console.log("WorkWise frontend loaded");
    STUDENT DATA & LOGIC
 ========================= */
 let student = null;
-const CURRENT_STUDENT_ID = 103;
+const CURRENT_STUDENT_ID = 104;
 
 const studentJobs = [];
 
@@ -183,13 +183,26 @@ function renderStudentApplications(apps) {
 
     apps.forEach(app => {
         const li = document.createElement("li");
+
+        let actionButton = "";
+
+        if (app.status === "Rejected") {
+            actionButton = `
+                <button onclick="reapplyJob(${app.job_id}, this)">
+                    Reapply
+                </button>
+            `;
+        }
+
         li.innerHTML = `
             <strong>${app.job_title}</strong><br>
             Company: ${app.company_name}<br>
-            Status: ${app.status}<br>
+            Status: <strong>${app.status}</strong><br>
             Applied on: ${app.apply_date}<br>
-            Application No: ${app.application_no}
+            Application No: ${app.application_no}<br>
+            ${actionButton}
         `;
+
         list.appendChild(li);
     });
 }
@@ -251,6 +264,30 @@ async function applyJob(jobId) {
     } catch (err) {
         console.error("Apply failed", err);
         alert("Something went wrong");
+    }
+}
+
+async function reapplyJob(jobId, btn) {
+    if (!student) return;
+
+    try {
+        await fetch(
+            `http://localhost:3000/api/students/${student.userId}/apply`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ jobId })
+            }
+        );
+
+        // 1) Remove the button immediately (UX)
+        if (btn) btn.remove();
+
+        // 2) Refresh DB-backed sections (truth sync)
+        await loadStudentApplications();
+        await loadStudentJobs(student.userId);
+    } catch (err) {
+        console.error("Reapply failed", err);
     }
 }
 
