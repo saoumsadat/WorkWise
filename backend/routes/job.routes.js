@@ -14,4 +14,28 @@ router.get("/", async (req, res) => {
     }
 });
 
+
+/* =====================================================
+SKILLS → LIST ALL SKILLS
+GET /api/skills
+===================================================== */
+router.get("/skills", async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `
+            SELECT
+                skill_id,
+                skill_name
+                FROM Skill
+                ORDER BY skill_name
+            `
+        );
+
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
 module.exports = router;

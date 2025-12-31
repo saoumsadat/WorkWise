@@ -6,7 +6,7 @@ console.log("WorkWise frontend loaded");
    STUDENT DATA & LOGIC
 ========================= */
 let student = null;
-const CURRENT_STUDENT_ID = 102;
+const CURRENT_STUDENT_ID = 103;
 
 const studentJobs = [];
 
@@ -299,87 +299,152 @@ async function reapplyJob(jobId, btn) {
 /* =========================
    CLIENT DATA & LOGIC
 ========================= */
-const client = {
-    userId: 201,
-    companyName: "TechNova Ltd.",
-    industry: "Software Services",
-    email: "hr@technova.com"
-};
 
-const clientJobs = [
-    { id: 1, title: "Software Intern", salary: 20000 },
-    { id: 2, title: "Backend Developer", salary: 50000 }
-];
+const CURRENT_CLIENT_ID = 202;
 
-const jobApplications = {
-    1: [
-        {
-            studentName: "John Doe",
-            studentId: "STU-2023-045",
-            skills: ["Python", "SQL"],
-            status: "Pending"
-        },
-        {
-            studentName: "Jane Smith",
-            studentId: "STU-2023-078",
-            skills: ["Python", "Data Analysis"],
-            status: "Pending"
+let clientProfile = null;
+let clientJobs = [];
+
+async function loadClientProfile() {
+    try {
+        const res = await fetch(
+            `http://localhost:3000/api/clients/${CURRENT_CLIENT_ID}`
+        );
+        const data = await res.json();
+
+        clientProfile = data;
+        renderClient();
+    } catch (err) {
+        console.error("Failed to load client profile", err);
+    }
+}
+
+
+async function loadClientJobs() {
+    try {
+        const res = await fetch(
+            `http://localhost:3000/api/clients/${CURRENT_CLIENT_ID}/jobs`
+        );
+        const jobs = await res.json();
+
+        clientJobs = jobs;
+        renderClient();
+    } catch (err) {
+        console.error("Failed to load client jobs", err);
+    }
+}
+
+async function loadClientPayments() {
+    try {
+        const res = await fetch(
+            `http://localhost:3000/api/clients/${CURRENT_CLIENT_ID}/payments/current`
+        );
+        const payments = await res.json();
+
+        renderClientPayments(payments);
+    } catch (err) {
+        console.error("Failed to load client payments", err);
+    }
+}
+
+async function loadSkills() {
+    try {
+        const res = await fetch("http://localhost:3000/api/jobs/skills");
+        const skills = await res.json();
+
+        const skillList = document.getElementById("skill-list");
+        if (!skillList) return;
+
+        skillList.innerHTML = "";
+
+        skills.forEach(skill => {
+            const label = document.createElement("label");
+            label.innerHTML = `
+                <input type="checkbox" value="${skill.skill_id}">
+                ${skill.skill_name}
+            `;
+            skillList.appendChild(label);
+            skillList.appendChild(document.createElement("br"));
+        });
+    } catch (err) {
+        console.error("Failed to load skills", err);
+    }
+}
+
+async function postJob(title, salary) {
+    try {
+        const selectedSkills = Array.from(
+            document.querySelectorAll("#skill-list input:checked")
+        ).map(cb => parseInt(cb.value));
+
+        const res = await fetch(
+            `http://localhost:3000/api/clients/${CURRENT_CLIENT_ID}/jobs`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    job_title: title,
+                    job_description: title,
+                    salary: salary,
+                    skills: selectedSkills
+                })
+            }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.error || "Failed to post job");
+            return;
         }
-    ]
-};
 
+        alert("Job posted successfully");
 
-function postJob(title, salary) {
-    clientJobs.push({
-        id: Date.now(),
-        title: title,
-        salary: salary
-    });
+        // Refresh DB-backed job list
+        loadClientJobs();
 
-    renderClient();
+    } catch (err) {
+        console.error("Job post failed", err);
+        alert("Server error while posting job");
+    }
 }
 
 function renderClient() {
     const clientInfoDiv = document.getElementById("client-info");
     const clientJobList = document.getElementById("client-job-list");
 
-    if (clientJobs.length === 0) {
+    if (clientInfoDiv && clientProfile) {
+        clientInfoDiv.innerHTML = `
+            <h3>Client Information</h3>
+            <p><strong>User ID:</strong> ${clientProfile.user_id}</p>
+            <p><strong>Company:</strong> ${clientProfile.company_name}</p>
+            <p><strong>Industry:</strong> ${clientProfile.industry}</p>
+        `;
+    }
+
+    if (!clientJobList) return;
+
+    clientJobList.innerHTML = "";
+
+    if (!clientJobs || clientJobs.length === 0) {
         clientJobList.innerHTML = "<li>No jobs posted yet.</li>";
         return;
     }
 
-    if (clientInfoDiv) {
-        clientInfoDiv.innerHTML = `
-            <h3>Client Information</h3>
-            <p><strong>User ID:</strong> ${client.userId}</p>
-            <p><strong>Company:</strong> ${client.companyName}</p>
-            <p><strong>Industry:</strong> ${client.industry}</p>
-            <p><strong>Email:</strong> ${client.email}</p>
-        `;
-    }
+    clientJobs.forEach(job => {
+        const li = document.createElement("li");
 
-    if (clientJobList) {
-        clientJobList.innerHTML = "";
-
-        clientJobs.forEach(job => {
-            const li = document.createElement("li");
-
-            li.innerHTML = `
-            <strong>${job.title}</strong><br>
+        li.innerHTML = `
+            <strong>${job.job_title}</strong><br>
             Salary: ${job.salary}<br>
-            Status: Open<br><br>
-            <button onclick="openApplications(${job.id})">
+            Social Contribution Points: ${job.social_contribution_points ?? "N/A"}<br><br>
+            <button onclick="openApplications(${job.job_id})">
                 View Applications
             </button>
         `;
 
-            clientJobList.appendChild(li);
-        });
-    }
-}
-
-function viewApplications(jobId) {
-    alert("View Applications will be implemented after backend integration.");
+        clientJobList.appendChild(li);
+    });
 }
 
 function openApplications(jobId) {
@@ -387,77 +452,161 @@ function openApplications(jobId) {
     window.location.href = "client-applications.html";
 }
 
-function updateApplicationStatus(jobId, index, newStatus) {
-    jobApplications[jobId][index].status = newStatus;
-    renderClientApplications();
+async function updateApplicationStatus(jobId, studentId, decision) {
+    try {
+        const res = await fetch(
+            "http://localhost:3000/api/clients/applications/review",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    student_id: studentId,
+                    job_id: jobId,
+                    decision: decision
+                })
+            }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.error || "Failed to review application");
+            return;
+        }
+
+        // Refresh DB-backed list (single source of truth)
+        await renderClientApplications();
+
+    } catch (err) {
+        console.error("Review failed", err);
+        alert("Server error while reviewing application");
+    }
 }
 
-function renderClientApplications() {
+
+async function renderClientApplications() {
     const list = document.getElementById("client-application-list");
     if (!list) return;
 
     const jobId = localStorage.getItem("currentJobId");
-    const applications = jobApplications[jobId] || [];
-
-    list.innerHTML = "";
-
-    if (applications.length === 0) {
-        list.innerHTML = "<li>No applications for this job.</li>";
+    if (!jobId) {
+        list.innerHTML = "<li>No job selected.</li>";
         return;
     }
 
-    applications.forEach((app, index) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-            <strong>${app.studentName}</strong><br>
-            Student ID: ${app.studentId}<br>
-            Skills: ${app.skills.join(", ")}<br>
-            Status: <strong>${app.status}</strong><br><br>
-            <button onclick="updateApplicationStatus(${jobId}, ${index}, 'Accepted')">Accept</button>
-            <button onclick="updateApplicationStatus(${jobId}, ${index}, 'Rejected')">Reject</button>
-        `;
-        list.appendChild(li);
-    });
+    try {
+        const res = await fetch(
+            `http://localhost:3000/api/clients/jobs/${jobId}/applications`
+        );
+        const applications = await res.json();
+
+        list.innerHTML = "";
+
+        if (!applications || applications.length === 0) {
+            list.innerHTML = "<li>No applications for this job.</li>";
+            return;
+        }
+
+        applications.forEach(app => {
+            const li = document.createElement("li");
+
+            let actionButtons = "";
+
+            if (app.status === "Pending") {
+                actionButtons = `
+                    <br><br>
+                    <button onclick="updateApplicationStatus(${jobId}, ${app.student_id}, 'Accepted')">
+                        Accept
+                    </button>
+                    <button onclick="updateApplicationStatus(${jobId}, ${app.student_id}, 'Rejected')">
+                        Reject
+                    </button>
+                `;
+            }
+
+            li.innerHTML = `
+                <strong>${app.student_name}</strong><br>
+                Student ID: ${app.student_id}<br>
+                Applied on: ${app.apply_date}<br>
+                Status: <strong>${app.status}</strong>
+                ${actionButtons}
+            `;
+
+            list.appendChild(li);
+        });
+    } catch (err) {
+        console.error("Failed to load applications", err);
+        list.innerHTML = "<li>Error loading applications.</li>";
+    }
 }
 
-function renderClientPayments() {
+function renderClientPayments(payments) {
     const monthDiv = document.getElementById("client-payment-month");
     const list = document.getElementById("client-payment-list");
 
     if (!monthDiv || !list) return;
 
-    monthDiv.innerHTML = `<strong>${currentMonth}</strong>`;
+    const now = new Date();
+    const monthName = now.toLocaleString("default", { month: "long" });
+    const year = now.getFullYear();
+
+    monthDiv.innerHTML = `<strong>${monthName} ${year}</strong>`;
     list.innerHTML = "";
 
-    if (payments.length === 0) {
+    if (!payments || payments.length === 0) {
         list.innerHTML = "<li>No employees to pay this month.</li>";
         return;
     }
 
-    payments.forEach((p, index) => {
+    payments.forEach(p => {
         const li = document.createElement("li");
 
+        let action = "";
+        if (p.status === "Unpaid") {
+            action = `
+                <br><br>
+                <button onclick="payClientPayment(${p.payment_id})">
+                    Mark as Paid
+                </button>
+            `;
+        }
+
         li.innerHTML = `
-            <strong>${p.studentName}</strong><br>
-            Job: ${p.jobTitle}<br>
-            Status: <strong>${p.status}</strong><br><br>
-            ${p.status === "Pending"
-                ? `<button onclick="payStudent(${index})">Pay</button>`
-                : `<em>Payment completed</em>`
-            }
+            <strong>${p.student_name}</strong><br>
+            Job: ${p.job_title}<br>
+            Amount: ${p.amount}<br>
+            Status: <strong>${p.status}</strong>
+            ${action}
         `;
 
         list.appendChild(li);
     });
 }
 
-function payStudent(index) {
-    payments[index].status = "Paid";
+async function payClientPayment(paymentId) {
+    try {
+        const res = await fetch(
+            `http://localhost:3000/api/clients/payments/${paymentId}/pay`,
+            {
+                method: "POST"
+            }
+        );
 
-    renderClientPayments();
-    renderCurrentMonthPayments();
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.error || "Failed to mark payment as paid");
+            return;
+        }
+
+        // Refresh DB-backed list (single source of truth)
+        await loadClientPayments();
+
+    } catch (err) {
+        console.error("Failed to mark payment as paid", err);
+        alert("Server error while marking payment as paid");
+    }
 }
-
 
 const postJobForm = document.getElementById("post-job-form");
 
@@ -579,7 +728,9 @@ function updateSocialPoints(jobId, newValue) {
    INIT
 ========================= */
 loadStudentProfile();
-renderClient();
+loadClientProfile();
+loadSkills();
+loadClientJobs();
+loadClientPayments();
 renderAdmin();
 renderClientApplications();
-renderClientPayments();
