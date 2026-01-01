@@ -99,7 +99,7 @@ BEGIN
     VALUES (
         'UPDATE',
         'Job',
-        NULL,   -- platform / admin action (acceptable)
+        NEW.admin_id,
         CURRENT_TIMESTAMP
     );
 END$$
