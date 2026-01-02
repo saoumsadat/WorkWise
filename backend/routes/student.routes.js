@@ -154,7 +154,7 @@ router.post("/:userId/apply", async (req, res) => {
 // GET available jobs for a student (DB decides availability)
 router.get("/:userId/available-jobs", async (req, res) => {
     const { userId } = req.params;
-    
+
     try {
         const [rows] = await db.query(
             `
@@ -163,15 +163,17 @@ router.get("/:userId/available-jobs", async (req, res) => {
                 j.job_title,
                 j.salary,
                 j.social_contribution_points
-                FROM Job j
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM Application a
-                    WHERE a.student_id = ?
-                    AND a.job_id = j.job_id
-                    AND a.status <> 'Rejected'
-                    )
-                    `,
+            FROM Job j
+            WHERE
+                j.social_contribution_points IS NOT NULL
+            AND NOT EXISTS (
+                SELECT 1
+                FROM Application a
+                WHERE a.student_id = ?
+                  AND a.job_id = j.job_id
+                  AND a.status <> 'Rejected'
+            )
+            `,
             [userId]
         );
 
