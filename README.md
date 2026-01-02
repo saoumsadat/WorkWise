@@ -35,8 +35,6 @@ Overall, the project was built to explore how a database-centric system can supp
 
 ## 2. Project Features
 
-Since this report is written as a single-author project, all features are implemented by one contributor.
-
 ### Core Features
 - Role-based access for **Student**, **Client**, and **University Admin**
 - Job posting with required skills
