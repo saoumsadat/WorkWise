@@ -157,10 +157,10 @@ INSERT INTO Requires (job_id, skill_id) VALUES
 -- =========================
 INSERT INTO Application (student_id, job_id, application_no, apply_date, status) VALUES
 (101, 1, 1, '2025-01-05', 'Pending'),
-(101, 3, 2, '2025-01-07', 'Accepted'),
+(101, 3, 2, '2025-01-07', 'Pending'),
 (102, 2, 1, '2025-01-06', 'Pending'),
-(103, 5, 1, '2025-01-08', 'Rejected'),
-(104, 4, 1, '2025-01-09', 'Rejected');
+(103, 5, 1, '2025-01-08', 'Pending'),
+(104, 4, 1, '2025-01-09', 'Pending');
 
 -- =========================
 -- PAYMENTS

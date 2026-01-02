@@ -1,26 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <title>WorkWise</title>
+    <title>WorkWise Login</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
+    <div class="container">
+        <h2>WorkWise Login</h2>
 
-    <h1>WorkWise</h1>
-    <p>University–Job Skill Matching Platform</p>
+        <form id="login-form">
+            <label>
+                User ID:
+                <input type="number" id="user-id" required>
+            </label>
 
-    <div class="role-container">
-        <a href="student.html">Student</a>
-        <a href="client.html">Client</a>
-        <a href="admin.html">University Admin</a>
+            <br><br>
+
+            <strong>Login as:</strong><br>
+
+            <label>
+                <input type="radio" name="role" value="student" required>
+                Student
+            </label><br>
+
+            <label>
+                <input type="radio" name="role" value="client">
+                Client
+            </label><br>
+
+            <label>
+                <input type="radio" name="role" value="admin">
+                University Admin
+            </label>
+
+            <br><br>
+
+            <button type="submit">Enter</button>
+        </form>
     </div>
 
-    <script src="js/main.js"></script>
+    <script>
+        document.getElementById("login-form").addEventListener("submit", async function (e) {
+            e.preventDefault();
 
+            const userId = document.getElementById("user-id").value;
+            const role = document.querySelector("input[name='role']:checked")?.value;
 
+            if (!userId || !role) {
+                alert("Please enter User ID and select a role");
+                return;
+            }
+
+            // Decide which endpoint validates the role
+            let checkUrl = "";
+
+            if (role === "student") {
+                checkUrl = `http://localhost:3000/api/students/${userId}`;
+            } else if (role === "client") {
+                checkUrl = `http://localhost:3000/api/clients/${userId}`;
+            } else if (role === "admin") {
+                checkUrl = `http://localhost:3000/api/admins/${userId}`;
+            }
+
+            try {
+                const res = await fetch(checkUrl);
+
+                if (!res.ok) {
+                    alert(`User ID ${userId} is not a valid ${role}`);
+                    return;
+                }
+
+                // Role is valid → store context
+                localStorage.setItem("user_id", userId);
+                localStorage.setItem("role", role);
+
+                // Redirect
+                if (role === "student") {
+                    window.location.href = "student.html";
+                } else if (role === "client") {
+                    window.location.href = "client.html";
+                } else if (role === "admin") {
+                    window.location.href = "admin.html";
+                }
+
+            } catch (err) {
+                alert("Server not reachable");
+            }
+        });
+    </script>
 </body>
 
 </html>

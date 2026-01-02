@@ -106,7 +106,7 @@ CREATE TABLE Job (
     job_description TEXT,
     salary DECIMAL(10,2),
     social_contribution_points INT,
-    admin_id INT NOT NULL,
+    admin_id INT NULL,
     client_id INT NOT NULL,
     FOREIGN KEY (admin_id) REFERENCES University_Admin(user_id),
     FOREIGN KEY (client_id) REFERENCES Client(user_id)

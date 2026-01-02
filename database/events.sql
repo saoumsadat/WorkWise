@@ -8,10 +8,12 @@
 
 DELIMITER $$
 
-CREATE EVENT MonthlyPaymentGeneration
+CREATE EVENT IF NOT EXISTS MonthlyPaymentGeneration
 ON SCHEDULE
     EVERY 1 MONTH
-    STARTS (DATE_FORMAT(CURRENT_DATE, '%Y-%m-01'))
+    STARTS TIMESTAMP(
+        DATE_FORMAT(CURRENT_DATE, '%Y-%m-01')
+    )
 DO
 BEGIN
     CALL GenerateMonthlyPayments();
