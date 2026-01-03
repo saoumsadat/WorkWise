@@ -151,7 +151,7 @@ router.post("/:userId/apply", async (req, res) => {
     }
 });
 
-// GET available jobs for a student (DB decides availability)
+// GET available jobs for a student (USING VIEW)
 router.get("/:userId/available-jobs", async (req, res) => {
     const { userId } = req.params;
 
@@ -159,20 +159,12 @@ router.get("/:userId/available-jobs", async (req, res) => {
         const [rows] = await db.query(
             `
             SELECT
-                j.job_id,
-                j.job_title,
-                j.salary,
-                j.social_contribution_points
-            FROM Job j
-            WHERE
-                j.social_contribution_points IS NOT NULL
-            AND NOT EXISTS (
-                SELECT 1
-                FROM Application a
-                WHERE a.student_id = ?
-                  AND a.job_id = j.job_id
-                  AND a.status <> 'Rejected'
-            )
+                job_id,
+                job_title,
+                salary,
+                social_contribution_points
+            FROM v_available_jobs_for_students
+            WHERE student_id = ?
             `,
             [userId]
         );
