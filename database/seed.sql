@@ -123,9 +123,14 @@ INSERT INTO Client (user_id, company_name, industry) VALUES
 INSERT INTO Takes (student_id, course_code, semester, grade) VALUES
 (101, 'CSE110', 'Spring 2024', 'A'),
 (101, 'CSE370', 'Fall 2024', 'A-'),
+(101, 'ENG091', 'Fall 2024', 'B+'),
 (102, 'STA201', 'Spring 2024', 'B+'),
 (102, 'ACC101', 'Fall 2024', 'A'),
+(102, 'ENG091', 'Fall 2024', 'A-'),
 (103, 'CSE101', 'Spring 2024', 'A'),
+(103, 'STA201', 'Fall 2024', 'B'),
+(103, 'ACC101', 'Fall 2024', 'B+'),
+(104, 'ACC101', 'Fall 2024', 'A'),
 (104, 'MIS205', 'Fall 2024', 'B');
 
 -- =========================

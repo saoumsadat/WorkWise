@@ -180,7 +180,9 @@ CREATE PROCEDURE MarkPaymentPaid (
 )
 BEGIN
     UPDATE Payment
-    SET status = 'Paid'
+    SET
+        status = 'Paid',
+        payment_date = CURRENT_DATE
     WHERE payment_id = p_payment_id
       AND status = 'Unpaid';
 END$$
