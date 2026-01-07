@@ -123,9 +123,14 @@ INSERT INTO Client (user_id, company_name, industry) VALUES
 INSERT INTO Takes (student_id, course_code, semester, grade) VALUES
 (101, 'CSE110', 'Spring 2024', 'A'),
 (101, 'CSE370', 'Fall 2024', 'A-'),
+(101, 'ENG091', 'Fall 2024', 'B+'),
 (102, 'STA201', 'Spring 2024', 'B+'),
 (102, 'ACC101', 'Fall 2024', 'A'),
+(102, 'ENG091', 'Fall 2024', 'A-'),
 (103, 'CSE101', 'Spring 2024', 'A'),
+(103, 'STA201', 'Fall 2024', 'B'),
+(103, 'ACC101', 'Fall 2024', 'B+'),
+(104, 'ACC101', 'Fall 2024', 'A'),
 (104, 'MIS205', 'Fall 2024', 'B');
 
 -- =========================
@@ -155,27 +160,27 @@ INSERT INTO Requires (job_id, skill_id) VALUES
 -- =========================
 -- APPLICATIONS
 -- =========================
-INSERT INTO Application (student_id, job_id, application_no, apply_date, status) VALUES
-(101, 1, 1, '2025-01-05', 'Pending'),
-(101, 3, 2, '2025-01-07', 'Pending'),
-(102, 2, 1, '2025-01-06', 'Pending'),
-(103, 5, 1, '2025-01-08', 'Pending'),
-(104, 4, 1, '2025-01-09', 'Pending');
+-- INSERT INTO Application (student_id, job_id, application_no, apply_date, status) VALUES
+-- (101, 1, 1, '2025-01-05', 'Pending'),
+-- (101, 3, 2, '2025-01-07', 'Pending'),
+-- (102, 2, 1, '2025-01-06', 'Pending'),
+-- (103, 5, 1, '2025-01-08', 'Pending'),
+-- (104, 4, 1, '2025-01-09', 'Pending');
 
 -- =========================
 -- PAYMENTS
 -- =========================
-INSERT INTO Payment (payment_id, payment_date, payment_month, payment_year, amount, status,
-                     application_student_id, application_job_id, client_id) VALUES
-(1, '2025-02-01', 2, 2025, 12000, 'Paid', 101, 1, 201),
-(2, '2025-02-05', 2, 2025, 10000, 'Paid', 104, 4, 203),
-(3, '2025-02-05', 2, 2025, 10000, 'Unpaid', 104, 4, 201),
-(4, CURRENT_DATE, MONTH(CURRENT_DATE), YEAR(CURRENT_DATE), 12000, 'Unpaid', 101, 1, 201);
+-- INSERT INTO Payment (payment_id, payment_date, payment_month, payment_year, amount, status,
+--                      application_student_id, application_job_id, client_id) VALUES
+-- (1, '2025-02-01', 2, 2025, 12000, 'Paid', 101, 1, 201),
+-- (2, '2025-02-05', 2, 2025, 10000, 'Paid', 104, 4, 203),
+-- (3, '2025-02-05', 2, 2025, 10000, 'Unpaid', 104, 4, 201),
+-- (4, CURRENT_DATE, MONTH(CURRENT_DATE), YEAR(CURRENT_DATE), 12000, 'Unpaid', 101, 1, 201);
 
 -- =========================
 -- AUDIT LOG (SEED)
 -- =========================
-INSERT INTO AuditLog (log_id, operation_type, entity_name, user_id) VALUES
-(1, 'INSERT', 'Job', 301),
-(2, 'INSERT', 'Application', 101),
-(3, 'INSERT', 'Payment', 203);
+-- INSERT INTO AuditLog (log_id, operation_type, entity_name, user_id) VALUES
+-- (1, 'INSERT', 'Job', 301),
+-- (2, 'INSERT', 'Application', 101),
+-- (3, 'INSERT', 'Payment', 203);

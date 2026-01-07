@@ -18,22 +18,26 @@ CREATE PROCEDURE ApplyOrReapplyJob (
 )
 BEGIN
     /* -----------------------------------------
-       Eligibility Check (at least one skill)
+       Eligibility Check (student must have ALL
+       required skills for the job)
     ----------------------------------------- */
-    IF NOT EXISTS (
+    IF EXISTS (
         SELECT 1
         FROM Requires r
-        JOIN v_student_skill_profile s
-            ON r.skill_id = s.skill_id
         WHERE r.job_id = p_job_id
-          AND s.student_id = p_student_id
+          AND NOT EXISTS (
+              SELECT 1
+              FROM v_student_skill_profile s
+              WHERE s.student_id = p_student_id
+                AND s.skill_id = r.skill_id
+          )
     ) THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Student is not eligible for this job';
     END IF;
 
     /* -----------------------------------------
-       Case 1: No existing application → insert
+       Case 1: No existing application → apply
     ----------------------------------------- */
     IF NOT EXISTS (
         SELECT 1
@@ -69,7 +73,8 @@ BEGIN
     ) THEN
 
         UPDATE Application
-        SET status = 'Pending',
+        SET
+            status = 'Pending',
             apply_date = CURRENT_DATE
         WHERE student_id = p_student_id
           AND job_id = p_job_id;
@@ -175,7 +180,9 @@ CREATE PROCEDURE MarkPaymentPaid (
 )
 BEGIN
     UPDATE Payment
-    SET status = 'Paid'
+    SET
+        status = 'Paid',
+        payment_date = CURRENT_DATE
     WHERE payment_id = p_payment_id
       AND status = 'Unpaid';
 END$$

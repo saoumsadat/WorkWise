@@ -1,14 +1,19 @@
 CREATE VIEW v_available_jobs_for_students AS
 SELECT
+    s.user_id AS student_id,
     j.job_id,
     j.job_title,
     j.salary,
     j.social_contribution_points
-FROM Job j
-WHERE NOT EXISTS (
+FROM Student s
+CROSS JOIN Job j
+WHERE
+    j.social_contribution_points IS NOT NULL
+AND NOT EXISTS (
     SELECT 1
     FROM Application a
-    WHERE a.job_id = j.job_id
+    WHERE a.student_id = s.user_id
+      AND a.job_id = j.job_id
       AND a.status <> 'Rejected'
 );
 
